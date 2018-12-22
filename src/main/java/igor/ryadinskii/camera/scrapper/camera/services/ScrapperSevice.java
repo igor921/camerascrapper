@@ -14,6 +14,9 @@ import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,6 +39,9 @@ public class ScrapperSevice {
 
     @Value("${video-data-path}")
     private String dataPath;
+
+    @Value("${camera-url}")
+    private String cameraUrl;
 
     @Value("${script}")
     private String ffmpegScript;
@@ -85,6 +91,24 @@ public class ScrapperSevice {
             sendSimpleMessage(mailTo, "Low disk space", "Only " + result + "GB left");
         }
 
+    }
+
+    @Async
+    @Scheduled(fixedDelay = 10000)
+    public void checkCameraEnabled(){
+        try {
+        URL url = new URL(cameraUrl);
+        HttpURLConnection con = null;
+        con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setInstanceFollowRedirects(false);
+        con.setConnectTimeout(4000);
+        con.getResponseCode();
+        } catch (Exception e) {
+            if(processHolder != null)
+                processHolder.killProcess();
+            e.printStackTrace();
+        }
     }
 
     @Async
