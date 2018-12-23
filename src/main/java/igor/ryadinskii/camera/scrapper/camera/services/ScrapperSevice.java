@@ -158,6 +158,7 @@ public class ScrapperSevice {
                     logger.info(String.format("Current %s", current));
                     logger.info("Last frame didn't change over 2 minutes");
                     processHolder.killProcess();
+                    createJob();
                 }
             }
         }catch (Exception ex){
