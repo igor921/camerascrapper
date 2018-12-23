@@ -12,11 +12,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,9 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import static java.time.temporal.ChronoUnit.*;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class ScrapperSevice {
@@ -152,7 +149,7 @@ public class ScrapperSevice {
             if (lastFilePath.isPresent()) // your folder may be empty
             {
                 Long lastModifird = Long.valueOf(lastFilePath.get().toFile().getName().replace(".mp4",""));
-                Long current = Long.valueOf(getDateTimeInFormat("yyyyMMddhms"));
+                Long current = Long.valueOf(getDateTimeInFormat("yyyyMMddHHmmss"));
                 if(Math.abs(current - lastModifird) >= 220){
                     logger.info(String.format("Last %s", lastModifird));
                     logger.info(String.format("Current %s", current));
