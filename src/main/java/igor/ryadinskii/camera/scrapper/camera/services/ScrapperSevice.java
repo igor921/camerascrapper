@@ -17,18 +17,18 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.*;
 
 @Service
 public class ScrapperSevice {
@@ -55,26 +55,18 @@ public class ScrapperSevice {
 
     private String mailTo = "igor.ryadinskii@gmail.com";
 
-    private boolean first = true;
-
     @Async
     @Scheduled(fixedDelay = 800)
     public void createDirectory(){
-        if(first){
-            first = false;
-            sendSimpleMessage(mailTo, "Test", "test");
-        }
             checkDiskSpace();
-            LocalDateTime ldt = LocalDateTime.now();
-            DateTimeFormatter formmat1 = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
-            String formatter = formmat1.format(ldt);
+            String formatter = getDateTimeInFormat("yyyy-MM-dd");
 
             new File(String.format("%s/%s", dataPath, formatter )).mkdirs();
 
             if(lastScriptRun != null && DAYS.between(LocalDate.now(), lastScriptRun) != 0){
                 if(processHolder != null){
                    processHolder.killProcess();
-                    createJob();
+                   createJob();
                 }
             }
     }
@@ -95,17 +87,17 @@ public class ScrapperSevice {
 
     @Async
     @Scheduled(fixedDelay = 10000)
-    public void checkCameraEnabled(){
+    public void checkCameraEnabled() {
         try {
-        URL url = new URL(cameraUrl);
-        HttpURLConnection con = null;
-        con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setInstanceFollowRedirects(false);
-        con.setConnectTimeout(4000);
-        con.getResponseCode();
+            URL url = new URL(cameraUrl);
+            HttpURLConnection con = null;
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setInstanceFollowRedirects(false);
+            con.setConnectTimeout(4000);
+            con.getResponseCode();
         } catch (Exception e) {
-            if(processHolder != null)
+            if (processHolder != null)
                 processHolder.killProcess();
             e.printStackTrace();
         }
@@ -139,13 +131,44 @@ public class ScrapperSevice {
         directories.forEach(directory -> {
             try {
                 LocalDate localDate = LocalDate.parse(directory.getName());
-                if (Math.abs(DAYS.between(LocalDate.now(), localDate)) >= 14)
+                if (Math.abs(DAYS.between(LocalDate.now(), localDate)) >= 4)
                     delete(directory);
             } catch (Exception ex){
                 logger.error(ex.getMessage());
             }
         });
     }
+
+    @Async
+    @Scheduled(fixedDelay = 10000)
+    public void checkFrameChanges() {
+
+        try {
+            String formatter = getDateTimeInFormat("yyyy-MM-dd");
+            Optional<Path> lastFilePath = Files.list(Paths.get(dataPath + "/" + formatter))    // here we get the stream with full directory listing
+                    .filter(f -> !Files.isDirectory(f))  // exclude subdirectories from listing
+                    .max(Comparator.comparingLong(f -> f.toFile().lastModified()));  // finally get the last file using simple comparator by lastModified field
+
+            if (lastFilePath.isPresent()) // your folder may be empty
+            {
+                Long lastModifird = Long.valueOf(lastFilePath.get().toFile().getName().replace(".mp4",""));
+                Long current = Long.valueOf(getDateTimeInFormat("yyyyMMddhms"));
+                if(Math.abs(current - lastModifird) >= 220){
+                    logger.info("Last frame didn't change over 2 minutes");
+                    processHolder.killProcess();
+                }
+            }
+        }catch (Exception ex){
+            logger.error(ex.getMessage());
+        }
+    }
+
+    private String getDateTimeInFormat(String format){
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter formmat1 = DateTimeFormatter.ofPattern(format, Locale.ENGLISH);
+        return formmat1.format(ldt);
+    }
+
 
     private void delete(File f) {
         try {
