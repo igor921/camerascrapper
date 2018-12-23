@@ -149,7 +149,10 @@ public class ScrapperSevice {
             if (lastFilePath.isPresent()) // your folder may be empty
             {
                 Long lastModifird = Long.valueOf(lastFilePath.get().toFile().getName().replace(".mp4",""));
-                Long current = Long.valueOf(getDateTimeInFormat("yyyyMMddHHmmss"));
+                LocalDateTime currentTime = LocalDateTime.now();
+                Long current = Long.valueOf(String.format("%s%s%s%s%s%s",
+                        currentTime.getYear(), formatDate(currentTime.getMonth().getValue()), formatDate(currentTime.getDayOfMonth()),
+                        formatDate(currentTime.getHour()), formatDate(currentTime.getMinute()), formatDate(currentTime.getSecond())));
                 if(Math.abs(current - lastModifird) >= 220){
                     logger.info(String.format("Last %s", lastModifird));
                     logger.info(String.format("Current %s", current));
@@ -168,6 +171,11 @@ public class ScrapperSevice {
         return formmat1.format(ldt);
     }
 
+    private String formatDate(int value){
+        if (value < 10)
+            return "0" + value;
+        return value+"";
+    }
 
     private void delete(File f) {
         try {
