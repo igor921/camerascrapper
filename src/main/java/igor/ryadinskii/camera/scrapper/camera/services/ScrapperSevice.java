@@ -153,7 +153,7 @@ public class ScrapperSevice {
                 Long current = Long.valueOf(String.format("%s%s%s%s%s%s",
                         currentTime.getYear(), formatDate(currentTime.getMonth().getValue()), formatDate(currentTime.getDayOfMonth()),
                         formatDate(currentTime.getHour()), formatDate(currentTime.getMinute()), formatDate(currentTime.getSecond())));
-                if(Math.abs(current - lastModifird) >= 220){
+                if(Math.abs(current - lastModifird) >= 240){
                     logger.info(String.format("Last %s", lastModifird));
                     logger.info(String.format("Current %s", current));
                     logger.info("Last frame didn't change over 2 minutes");
