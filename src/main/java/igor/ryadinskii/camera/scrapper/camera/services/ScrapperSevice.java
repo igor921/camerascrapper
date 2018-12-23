@@ -154,6 +154,8 @@ public class ScrapperSevice {
                 Long lastModifird = Long.valueOf(lastFilePath.get().toFile().getName().replace(".mp4",""));
                 Long current = Long.valueOf(getDateTimeInFormat("yyyyMMddhms"));
                 if(Math.abs(current - lastModifird) >= 220){
+                    logger.info(String.format("Last %s", lastModifird));
+                    logger.info(String.format("Current %s", current));
                     logger.info("Last frame didn't change over 2 minutes");
                     processHolder.killProcess();
                 }
