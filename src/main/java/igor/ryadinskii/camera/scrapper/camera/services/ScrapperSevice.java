@@ -60,12 +60,12 @@ public class ScrapperSevice {
 
             new File(String.format("%s/%s", dataPath, formatter )).mkdirs();
 
-            if(lastScriptRun != null && DAYS.between(LocalDate.now(), lastScriptRun) != 0){
+            /*if(lastScriptRun != null && DAYS.between(LocalDate.now(), lastScriptRun) != 0){
                 if(processHolder != null){
                    processHolder.killProcess();
                    createJob();
                 }
-            }
+            }*/
     }
 
     private void checkDiskSpace() {
@@ -82,7 +82,7 @@ public class ScrapperSevice {
 
     }
 
-    @Async
+    /*@Async
     @Scheduled(fixedDelay = 10000)
     public void checkCameraEnabled() {
         try {
@@ -119,7 +119,7 @@ public class ScrapperSevice {
             }
     }
 
-
+*/
 
     @Async
     @Scheduled(fixedDelay = 30000)
@@ -136,7 +136,7 @@ public class ScrapperSevice {
         });
     }
 
-    @Async
+ /*   @Async
     @Scheduled(fixedDelay = 10000)
     public void checkFrameChanges() {
 
@@ -165,7 +165,7 @@ public class ScrapperSevice {
             logger.error(ex.getMessage());
         }
     }
-
+*/
     private String getDateTimeInFormat(String format){
         LocalDateTime ldt = LocalDateTime.now();
         DateTimeFormatter formmat1 = DateTimeFormatter.ofPattern(format, Locale.ENGLISH);
@@ -191,7 +191,7 @@ public class ScrapperSevice {
         }
     }
 
-    @PreDestroy
+    /*@PreDestroy
     public void destroy(){
         if(processHolder != null)
             processHolder.killProcess();
@@ -201,7 +201,7 @@ public class ScrapperSevice {
         String[] arrayCommands = ffmpegScript.split(" ");
         return Arrays.asList(arrayCommands);
     }
-
+*/
     public void sendSimpleMessage(String to, String subject, String text) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
