@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ffmpeg -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:10:00 -strict -2 -f segment -segment_time 120 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy /var/camerascrapper/video-data/%Y-%m-%d/%Y%m%d%H%M%S.mp4
+ffmpeg -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:10:00 -strict -2 -f segment -segment_time 300 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy /var/camerascrapper/video-data/%Y-%m-%d/%Y%m%d%H%M%S.mp4
