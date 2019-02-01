@@ -11,11 +11,12 @@ spring:
 ---
 spring:
   profiles: local
-script: ${FFPEG_SCRIPT:C:/ffmpeg/bin/ffmpeg.exe -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:10:00 -strict -2 -f segment -segment_time 120 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy D:/444/%Y-%m-%d/%Y%m%d%H%M%S.mp4}
+script: ${FFPEG_SCRIPT:C:/ffmpeg/bin/ffmpeg.exe -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:05:00 -strict -2 -f segment -segment_time 120 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy D:/444/%Y-%m-%d/%Y%m%d%H%M%S.mp4}
 video-data-path: D:/444/
-
+mail-to: igor.ryadinskii@gmail.com
 ---
 spring:
   profiles: prod
-script: ${FFPEG_SCRIPT:ffmpeg -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:10:00 -strict -2 -f segment -segment_time 120 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy /var/camerascrapper/video-data/%Y-%m-%d/%Y%m%d%H%M%S.mp4}
+script: ${FFPEG_SCRIPT:ffmpeg -stimeout 1000000 -rtsp_transport tcp -i rtsp://admin:gd20160404@194.28.183.81:554 -t 00:05:00 -strict -2 -f segment -segment_time 120 -segment_format mp4 -reset_timestamps 1 -strftime 1 -codec:v copy /var/camerascrapper/video-data/%Y-%m-%d/%Y%m%d%H%M%S.mp4}
 video-data-path: /var/camerascrapper/video-data/
+mail-to: igor.ryadinskii@gmail.com
