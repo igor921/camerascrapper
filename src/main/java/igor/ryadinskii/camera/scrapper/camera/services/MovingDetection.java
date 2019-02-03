@@ -1,5 +1,6 @@
 package igor.ryadinskii.camera.scrapper.camera.services;
 
+import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
