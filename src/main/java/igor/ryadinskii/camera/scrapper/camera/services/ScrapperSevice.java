@@ -10,18 +10,18 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -48,6 +48,9 @@ public class ScrapperSevice {
     @Autowired
     private JavaMailSender emailSender;
 
+    private Date dateFile = null;
+    private final Lock lock = new ReentrantLock();
+    private final String fileNamePattern = "yyyyMMddhms";
     @Async
     @Scheduled(fixedDelay = 800)
     public void createDirectory() {
@@ -74,28 +77,41 @@ public class ScrapperSevice {
     }
 
     @Async
-    @Scheduled(fixedDelay = 300000)
+    @Scheduled(fixedDelay = 10000)
     public void detectMove() {
 
-        executor.submit(()->{
-            try{
-                String formatter = getDateTimeInFormat("yyyy-MM-dd");
+        if (lock.tryLock()) {
+            executor.submit(() -> {
+                try {
+                    String formatter = getDateTimeInFormat("yyyy-MM-dd");
 
-                List<File> directories = Arrays.asList(Objects.requireNonNull(new File(String.format("%s/%s",dataPath,formatter)).listFiles()));
-                if(directories != null && directories.size() > 1){
-                    File file = directories.get(directories.size() - 2);
-                    if(MovingDetection.detectMove(file)){
+                    List<File> directories = Arrays.asList(Objects.requireNonNull(new File(String.format("%s/%s", dataPath, formatter)).listFiles()));
+                    if (directories != null && directories.size() > 1) {
+                        File file = directories.get(directories.size() - 2);
 
-                            Files.copy(file.toPath(),
-                                    new File(String.format("%s/%s/%s/%s", dataPath, formatter, "moving", file.getName())).toPath(),
-                                    StandardCopyOption.REPLACE_EXISTING);
+                        if (dateFile != null && file.getName().contains(dateFile.))
+                            return;
 
+                        directories.forEach(f1 -> {
+                            if (MovingDetection.detectMove(f1)) {
+                                try {
+                                    Files.copy(f1.toPath(),
+                                            new File(String.format("%s/%s/%s/%s", dataPath, formatter, "moving", f1.getName())).toPath(),
+                                            StandardCopyOption.REPLACE_EXISTING);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        });
                     }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    lock.unlock();
                 }
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
-        });
+            });
+        }
     }
 
 
